@@ -35,12 +35,11 @@ class PostController extends Controller
 
     public function store(SavePostRequest $request)
     {
-
-        if( $request->hasFile('imagen'))
-        {
-            $file = $request->file('imagen')->store('public/storage/images');
-            $request->imagen = $file;
-        }
+        $imagen = $request->file('imagen');
+        $file_name = $imagen->getClientOriginalName();
+        $imagen->move('storage/images', $file_name);
+        $url = '/storage/images/' . $file_name;
+        $post['imagen'] = $url;
 
         Post::create($request->validated());
 
@@ -56,11 +55,14 @@ class PostController extends Controller
 
     public function update(Post $post, SavePostRequest $request)
     {
-        if( $request->hasFile('imagen'))
-        {
-            $file = $request->file('imagen')->store('public/storage/images');
-            $request->imagen = $file;
-        }
+        $imagen = $request->file('imagen');
+        $file_name = $imagen->getClientOriginalName();
+        $imagen->move('storage/images', $file_name);
+        $url = '/storage/images/' . $file_name;
+        $post['imagen'] = $url;
+        unset($request['imagen']);
+        return $request;
+
         $post->update($request->validated());
         return redirect()->route('posts.show', $post);
     }
