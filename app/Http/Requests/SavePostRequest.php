@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class SavePostRequest extends FormRequest
 {
@@ -25,9 +26,17 @@ class SavePostRequest extends FormRequest
     {
         return [
             'titulo' => 'required|max:100',
-            'slug' => 'required|max:100',
+            'slug' => [
+                'required',
+                Rule::unique('posts')->ignore($this->route('post')),
+                'max:100'
+            ],
             'descripcion' => 'required',
-            'imagen' => 'required|image|max:10240'
+            'imagen' => [
+                $this->route('post') ? 'nullable' : 'required',
+                'mimes:jpeg,png,jpg',
+                'max:10240'
+            ]
         ];
     }
 
@@ -35,7 +44,8 @@ class SavePostRequest extends FormRequest
     {
         return [
             'titulo.required' => 'El post no contiene un titulo',
-            'slug.required' => 'El post no contiene una url',
+            'slug.required' => 'El post no contiene un slug',
+            'slug.unique' => 'Ya existe un post con ese slug',
             'descripcion.required' => 'El post no contiene una descripcion',
             'imagen.required' => 'El post no contiene una imagen',
             'imagen.image' => 'El archivo subido no es una imagen, o es un archivo muy pesado'

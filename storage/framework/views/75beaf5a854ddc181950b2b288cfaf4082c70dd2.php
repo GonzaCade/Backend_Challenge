@@ -4,8 +4,8 @@
 
 <?php $__env->startSection('content'); ?>
 <div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card shadow-sm mt-3">
+	<div class="col-md-8 col-sm-12">
+		<div class="card shadow-sm mt-3 d-grid">
             <div class="card-body">
 				<h1>Contacto</h1>
 				<form method="POST" action="<?php echo e(route('contacto')); ?>">

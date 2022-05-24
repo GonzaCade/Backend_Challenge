@@ -8,8 +8,10 @@
     <div class="col-md-8">
         <div class="card shadow-sm mt-3">
             <div class="card-body text-center justify-content-center">
+				<?php if($post->imagen): ?>
+					<img src="/storage/<?php echo e($post->imagen); ?>" class="card-img-top" alt="<?php echo e($post->titulo); ?>">
+				<?php endif; ?>
 				<h1><?php echo e($post->titulo); ?></h1>
-				<img src="<?php echo e(asset($post->imagen)); ?>" alt="<?php echo e($post->titulo); ?>" class="img-fluid img-thmbnail" width="240vw">
 				<p><?php echo e($post->descripcion); ?></p>
 				<p><?php echo e($post->created_at); ?></p>
 

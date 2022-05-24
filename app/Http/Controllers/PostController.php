@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\SavePostRequest;
 use App\Models\Post;
+use App\Events\PostSaved;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -35,15 +36,15 @@ class PostController extends Controller
 
     public function store(SavePostRequest $request)
     {
-        $imagen = $request->file('imagen');
-        $file_name = $imagen->getClientOriginalName();
-        $imagen->move('storage/images', $file_name);
-        $url = '/storage/images/' . $file_name;
-        $post['imagen'] = $url;
+        $post = new Post($request->validated());
 
-        Post::create($request->validated());
+        $post->imagen = $request->file('imagen')->store('images');
 
-        return redirect()->route('home');
+        $post->save();
+
+        PostSaved::dispatch($post);
+
+        return redirect()->route('home')->with('status','Post creado correctamente');
     }
 
     public function edit(Post $post)
@@ -55,21 +56,27 @@ class PostController extends Controller
 
     public function update(Post $post, SavePostRequest $request)
     {
-        $imagen = $request->file('imagen');
-        $file_name = $imagen->getClientOriginalName();
-        $imagen->move('storage/images', $file_name);
-        $url = '/storage/images/' . $file_name;
-        $post['imagen'] = $url;
-        unset($request['imagen']);
-        return $request;
+        if( $request->hasFile('imagen'))
+        {
+            Storage::delete($post->imagen);
+            
+            $post->fill($request->validated());
 
-        $post->update($request->validated());
-        return redirect()->route('posts.show', $post);
+            $post->imagen = $request->file('imagen')->store('images');
+
+            $post->save();
+
+            PostSaved::dispatch($post);
+        } else {
+            $post->update(array_filter($request->validated()));
+        }
+        return redirect()->route('posts.show', $post)->with('status','Post actualizado correctamente');
     }
 
     public function destroy(Post $post)
     {
+        Storage::delete($post->imagen);
         $post->delete();
-        return redirect()->route('home', $post);
+        return redirect()->route('home', $post)->with('status','Post eliminado correctamente');
     }
 }
